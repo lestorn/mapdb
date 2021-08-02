@@ -3,6 +3,7 @@ package org.mapdb.volume;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mapdb.DBException;
+import sun.nio.ch.DirectBuffer;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,7 +130,11 @@ public final class MappedFileVolSingle extends ByteBufferVolSingle {
         }
 
         if (cleanerHackEnabled && buffer != null && (buffer instanceof MappedByteBuffer)) {
-            ByteBufferVol.unmap((MappedByteBuffer) buffer);
+            if (readOnly) {
+                ByteBufferVol.unmap((MappedByteBuffer) ((DirectBuffer) buffer).attachment());
+            } else {
+                ByteBufferVol.unmap((MappedByteBuffer) buffer);
+            }
         }
         buffer = null;
     }
